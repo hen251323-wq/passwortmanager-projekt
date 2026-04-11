@@ -6,92 +6,117 @@
 		<title>Passwortmanager</title>
 		<link rel="stylesheet" href="styles.css">
 	</head>
-	<body class="roboto-font">
+	<body>
 		<main>
-			<div class="window left">
+			<div class="scrollable window pad-by-width left">
 				<h1> Passwortmanager </h1>
 				
-				<form class="vertical-container">
-					<input type="text" id="new_set_name" name="new_set_name", placeholder="Name">
-					<input type="password" id="new_set_password" name="new_set_password" placeholder="Masterkennwort">
-					<input type="button" id="new_set_submit" value="Neues Set erstellen">
+				<form class="pad-by-width">
+					<input type="text" id="new-set-name" name="new-set-name", placeholder="Name">
+					<input type="password" id="new-set-password" name="new-set-password" placeholder="Masterkennwort">
+					<br>
+					<input type="button" id="new-set-submit" value="Set erstellen">
 
 					<p>oder</p>
-
-					<input type="button" id="load_set_button" value="Set laden">
-					<input type="button" id="save_set_button" value="Set speichern">
+					
+					<div>
+						<input type="button" id="load-set-button" value="Set laden">
+						<input type="button" id="save-set-button" value="Set speichern">
+					</div>
 				</form>
 			</div>
-			<div class="window right">
+			<div class="window vertical-container right">
 				<header>
-					<form class="vertical-container"> 
-						<input type="text" id="set_password", name="set_password" placeholder="Masterkennwort">
-						<input type="button" id="set_password_submit" value="Masterkennwort bestätigen">
+					<form id="set-password-container">
+						<div class="inline">
+							<input type="text" id="set-password", name="set-password" placeholder="Masterkennwort">
+							<input type="button" id="set-password-submit" value="Bestätigen">
+						</div>
 						<p class="error-text"> Falsches Masterkennwort für Set </p>
 					</form>
+
+					<div id="entry-list-header">
+						<p class="label-text">Set "test-set" - Alle Einträge</p>
+					</div>
 				</header>
 
-				<div class="entry-container-header">
-					<p> Set "test_set" - Alle Einträge </p>	
-				</div>
-
-				<div class="scrollable entry-container">
-					<div class="entry-element">
-						<div class="inline">
+				<main id="entry-list" class="scrollable vertical-container">
+					<form class="entry-element">
+						<div>
 							<p class="label-text">Nutzername: </p>
-							<p class="entry-text">test_name_0</p>
-						</div> <br>
+							<p class="entry-text">test-name-0</p>
+						</div>
 
-						<div class="inline">
+						<div>
 							<p class="label-text">Kennwort: </p>
-							<p class="entry-text">test_password_0</p>
+							<p class="entry-text">test-password-0</p>
 						</div>
 
 						<div class="horizontal-line"></div>
-						<form>
-							<input type="button" id="entry_edit" name="entry_edit" value="Eintrag bearbeiten">
-							<input type="button" id="entry_delete" name="entry_delete" value="Eintrag löschen">
-						</form>
-					</div>
-
-					<div class="entry-element">
-						<div class="inline">
-							<p class="label-text">Nutzername: </p>
-							<p class="entry-text">test_name_1</p>
-						</div> <br>
-
-						<div class="inline">
-							<p class="label-text">Kennwort: </p>
-							<p class="entry-text">test_password_1</p>
+						<div>
+							<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
+							<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
 						</div>
-
-						<div class="horizontal-line"></div>
-						<form>
-							<input type="button" id="entry_edit" name="entry_edit" value="Eintrag bearbeiten">
-							<input type="button" id="entry_delete" name="entry_delete" value="Eintrag löschen">
-						</form>
-					</div>
+					</form>
 
 					<form class="entry-element">
-						<div class="inline">
-							<input type="text" id="entry_name" name="entry_name" placeholder="Nutzername">
-						</div> <br>
+						<div>
+							<p class="label-text">Nutzername: </p>
+							<p class="entry-text">test-name-1</p>
+						</div>
 
-						<div class="inline">
-							<input type="text" id="entry_name" name="entry_name" placeholder="Kennwort">
+						<div>
+							<p class="label-text">Kennwort: </p>
+							<p class="entry-text">test-password-1</p>
+						</div>
+
+						<div class="horizontal-line"></div>
+						<div>
+							<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
+							<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
+						</div>
+					</form>
+
+					<form class="entry-element">
+						<div>
+							<p class="label-text">Nutzername: </p>
+							<p class="entry-text">test-name-2</p>
+						</div>
+
+						<div>
+							<p class="label-text">Kennwort: </p>
+							<p class="entry-text">test-password-2</p>
+						</div>
+
+						<div class="horizontal-line"></div>
+						<div>
+							<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
+							<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
+						</div>
+					</form>
+
+					<form class="entry-element">
+						<div>
+							<p class="label-text">Nutzername: </p>
+							<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
+						</div>
+
+						<div>
+							<p class="label-text">Kennwort: </p>
+							<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
 						</div>
 
 						<div class="horizontal-line"></div>
 						
 						<div>
-							<input type="button" id="entry_edit" name="entry_save" value="Eintrag speichern">
+							<input type="button" id="entry-edit" name="entry-save" class="entry-input" value="Speichern">
 						</div>
 					</form>
-				</div>
+				</main>
 
-				<form class="entry-container-footer">
-					<input type="button" id="new_entry_add" name="new_entry_add" value="Neuen Eintrag hinzufügen">
-				</form>
+				<footer id="entry-list-footer">
+					<input type="button" id="new-entry-add" name="new-entry-add" class="entry-input" value="+ Hinzufügen">
+				</footer>
 			</div>
 		</main>
 	</body>
