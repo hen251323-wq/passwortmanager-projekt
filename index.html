@@ -6,118 +6,116 @@
 		<title>Passwortmanager</title>
 		<link rel="stylesheet" href="styles.css">
 	</head>
-	<body>
-		<main>
-			<div class="scrollable window pad-by-width left">
-				<h1> Passwortmanager </h1>
-				
-				<form class="pad-by-width">
-					<input type="text" id="new-set-name" name="new-set-name", placeholder="Name">
-					<input type="password" id="new-set-password" name="new-set-password" placeholder="Masterkennwort">
-					<br>
-					<input type="button" id="new-set-submit" value="Set erstellen">
+	<body class="scrollable">
+		<div class="window pad-by-width">
+			<h1> Passwortmanager </h1>
+			
+			<form class="pad-by-width">
+				<input type="text" id="new-set-name" name="new-set-name", placeholder="Name">
+				<input type="password" id="new-set-password" name="new-set-password" placeholder="Masterkennwort">
+				<br>
+				<input type="button" id="new-set-submit" value="Set erstellen">
 
-					<p>oder</p>
-					
+				<p>oder</p>
+				
+				<div>
+					<input type="button" id="load-set-button" value="Set laden">
+					<input type="button" id="save-set-button" value="Set speichern">
+				</div>
+			</form>
+		</div>
+		<div class="window vertical-container">
+			<header>
+				<form id="set-password-container">
+					<div class="inline">
+						<input type="text" id="set-password", name="set-password" placeholder="Masterkennwort">
+						<input type="button" id="set-password-submit" value="Bestätigen">
+					</div>
+					<p class="error-text"> Falsches Masterkennwort für Set </p>
+				</form>
+
+				<div id="entry-list-header">
+					<p class="label-text">Set "test-set" - Alle Einträge</p>
+				</div>
+			</header>
+
+			<main id="entry-list" class="scrollable vertical-container">
+				<form class="entry-element">
 					<div>
-						<input type="button" id="load-set-button" value="Set laden">
-						<input type="button" id="save-set-button" value="Set speichern">
+						<p class="label-text">Nutzername: </p>
+						<p class="entry-text">test-name-0</p>
+					</div>
+
+					<div>
+						<p class="label-text">Kennwort: </p>
+						<p class="entry-text">test-password-0</p>
+					</div>
+
+					<div class="horizontal-line"></div>
+					<div>
+						<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
+						<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
 					</div>
 				</form>
-			</div>
-			<div class="window vertical-container right">
-				<header>
-					<form id="set-password-container">
-						<div class="inline">
-							<input type="text" id="set-password", name="set-password" placeholder="Masterkennwort">
-							<input type="button" id="set-password-submit" value="Bestätigen">
-						</div>
-						<p class="error-text"> Falsches Masterkennwort für Set </p>
-					</form>
 
-					<div id="entry-list-header">
-						<p class="label-text">Set "test-set" - Alle Einträge</p>
+				<form class="entry-element">
+					<div>
+						<p class="label-text">Nutzername: </p>
+						<p class="entry-text">test-name-1</p>
 					</div>
-				</header>
 
-				<main id="entry-list" class="scrollable vertical-container">
-					<form class="entry-element">
-						<div>
-							<p class="label-text">Nutzername: </p>
-							<p class="entry-text">test-name-0</p>
-						</div>
+					<div>
+						<p class="label-text">Kennwort: </p>
+						<p class="entry-text">test-password-1</p>
+					</div>
 
-						<div>
-							<p class="label-text">Kennwort: </p>
-							<p class="entry-text">test-password-0</p>
-						</div>
+					<div class="horizontal-line"></div>
+					<div>
+						<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
+						<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
+					</div>
+				</form>
 
-						<div class="horizontal-line"></div>
-						<div>
-							<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
-							<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
-						</div>
-					</form>
+				<form class="entry-element">
+					<div>
+						<p class="label-text">Nutzername: </p>
+						<p class="entry-text">test-name-2</p>
+					</div>
 
-					<form class="entry-element">
-						<div>
-							<p class="label-text">Nutzername: </p>
-							<p class="entry-text">test-name-1</p>
-						</div>
+					<div>
+						<p class="label-text">Kennwort: </p>
+						<p class="entry-text">test-password-2</p>
+					</div>
 
-						<div>
-							<p class="label-text">Kennwort: </p>
-							<p class="entry-text">test-password-1</p>
-						</div>
+					<div class="horizontal-line"></div>
+					<div>
+						<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
+						<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
+					</div>
+				</form>
 
-						<div class="horizontal-line"></div>
-						<div>
-							<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
-							<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
-						</div>
-					</form>
+				<form class="entry-element">
+					<div>
+						<p class="label-text">Nutzername: </p>
+						<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
+					</div>
 
-					<form class="entry-element">
-						<div>
-							<p class="label-text">Nutzername: </p>
-							<p class="entry-text">test-name-2</p>
-						</div>
+					<div>
+						<p class="label-text">Kennwort: </p>
+						<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
+					</div>
 
-						<div>
-							<p class="label-text">Kennwort: </p>
-							<p class="entry-text">test-password-2</p>
-						</div>
+					<div class="horizontal-line"></div>
+					
+					<div>
+						<input type="button" id="entry-edit" name="entry-save" class="entry-input" value="Speichern">
+					</div>
+				</form>
+			</main>
 
-						<div class="horizontal-line"></div>
-						<div>
-							<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
-							<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
-						</div>
-					</form>
-
-					<form class="entry-element">
-						<div>
-							<p class="label-text">Nutzername: </p>
-							<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
-						</div>
-
-						<div>
-							<p class="label-text">Kennwort: </p>
-							<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
-						</div>
-
-						<div class="horizontal-line"></div>
-						
-						<div>
-							<input type="button" id="entry-edit" name="entry-save" class="entry-input" value="Speichern">
-						</div>
-					</form>
-				</main>
-
-				<footer id="entry-list-footer">
-					<input type="button" id="new-entry-add" name="new-entry-add" class="entry-input" value="+ Hinzufügen">
-				</footer>
-			</div>
-		</main>
+			<footer id="entry-list-footer">
+				<input type="button" id="new-entry-add" name="new-entry-add" class="entry-input" value="+ Hinzufügen">
+			</footer>
+		</div>
 	</body>
 </html>
