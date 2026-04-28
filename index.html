@@ -1,20 +1,23 @@
-<!DOCTYPE "html">
+<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width-device-width, initial-scale-1.0"/>
 		<title>Passwortmanager</title>
 		<link rel="stylesheet" href="styles.css">
+		<script src="script.js" defer></script>
 	</head>
 	<body class="scrollable">
 		<div class="window pad-by-width">
 			<h1> Passwortmanager </h1>
 			
-			<form class="pad-by-width">
+			<form id="new-set-form" class="pad-by-width">
 				<input type="text" id="new-set-name" name="new-set-name", placeholder="Name">
 				<input type="password" id="new-set-password" name="new-set-password" placeholder="Masterkennwort">
 				<br>
 				<input type="button" id="new-set-submit" value="Set erstellen">
+				<br>
+				<p id="new-set-error" class="error-text" hidden></p>
 
 				<p>oder</p>
 				
@@ -26,96 +29,65 @@
 		</div>
 		<div class="window vertical-container">
 			<header>
-				<form id="set-password-container">
+				<form id="set-password-form">
 					<div class="inline">
-						<input type="text" id="set-password", name="set-password" placeholder="Masterkennwort">
-						<input type="button" id="set-password-submit" value="Bestätigen">
+						<input type="text" id="set-password", name="set-password" placeholder="Masterkennwort" disabled>
+						<input type="button" id="set-password-submit" value="Bestätigen" disabled>
 					</div>
-					<p class="error-text"> Falsches Masterkennwort für Set </p>
+					<p id="set-password-error" class="error-text" hidden></p>
 				</form>
 
 				<div id="entry-list-header">
-					<p class="label-text">Set "test-set" - Alle Einträge</p>
+					<p id="entry-list-header-text" class="label-text"></p>
 				</div>
 			</header>
 
-			<main id="entry-list" class="scrollable vertical-container">
+			<main id="entry-list" class="scrollable vertical-container"></main>
+
+			<footer id="entry-list-footer">
+				<input type="button" id="new-entry-add" name="new-entry-add" class="entry-input" disabled value="+ Hinzufügen">
+			</footer>
+		</div>
+
+		<div hidden>
+			<div id="entry-element-template">
 				<form class="entry-element">
 					<div>
 						<p class="label-text">Nutzername: </p>
-						<p class="entry-text">test-name-0</p>
+						<p class="entry-name entry-text"></p>
 					</div>
 
 					<div>
 						<p class="label-text">Kennwort: </p>
-						<p class="entry-text">test-password-0</p>
+						<p class="entry-password entry-text"></p>
 					</div>
 
 					<div class="horizontal-line"></div>
 					<div>
-						<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
-						<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
+						<input type="button" class="entry-edit-button entry-input" value="Bearbeiten">
+						<input type="button" class="entry-delete-button entry-input" value="Löschen">
 					</div>
 				</form>
-
+			</div>
+			<div id="entry-element-inedit-template">
 				<form class="entry-element">
 					<div>
 						<p class="label-text">Nutzername: </p>
-						<p class="entry-text">test-name-1</p>
+						<input type="text" class="entry-name entry-input">
 					</div>
 
 					<div>
 						<p class="label-text">Kennwort: </p>
-						<p class="entry-text">test-password-1</p>
-					</div>
-
-					<div class="horizontal-line"></div>
-					<div>
-						<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
-						<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
-					</div>
-				</form>
-
-				<form class="entry-element">
-					<div>
-						<p class="label-text">Nutzername: </p>
-						<p class="entry-text">test-name-2</p>
-					</div>
-
-					<div>
-						<p class="label-text">Kennwort: </p>
-						<p class="entry-text">test-password-2</p>
-					</div>
-
-					<div class="horizontal-line"></div>
-					<div>
-						<input type="button" id="entry-edit" name="entry-edit" class="entry-input" value="Bearbeiten">
-						<input type="button" id="entry-delete" name="entry-delete" class="entry-input" value="Löschen">
-					</div>
-				</form>
-
-				<form class="entry-element">
-					<div>
-						<p class="label-text">Nutzername: </p>
-						<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
-					</div>
-
-					<div>
-						<p class="label-text">Kennwort: </p>
-						<input type="text" id="new-entry-name" name="new-entry-name" class="entry-input">
+						<input type="text" class="entry-password entry-input">
 					</div>
 
 					<div class="horizontal-line"></div>
 					
 					<div>
-						<input type="button" id="entry-edit" name="entry-save" class="entry-input" value="Speichern">
+						<input type="button" class="entry-save-button entry-input" value="Speichern">
 					</div>
 				</form>
-			</main>
-
-			<footer id="entry-list-footer">
-				<input type="button" id="new-entry-add" name="new-entry-add" class="entry-input" value="+ Hinzufügen">
-			</footer>
+			</div>
 		</div>
 	</body>
 </html>

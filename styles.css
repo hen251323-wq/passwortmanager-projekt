@@ -208,6 +208,12 @@ input {
         transition-duration: 0.2s;
         color: var(--primary-text-color);
         background-color: transparent;
+
+        &:disabled {
+                pointer-events: none;
+
+                opacity: 0.4;
+        }
 }
 
 input[type=text], input[type=password] {
