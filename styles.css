@@ -194,7 +194,7 @@ p {
 	line-height: 12px;
 }
 
-input {
+input, .input {
         min-height: 56px;
         height: 56px;
 
@@ -231,7 +231,7 @@ input[type=text], input[type=password] {
         }
 }
 
-input[type=button], input[type=submit] {
+input[type=button], input[type=submit], .button {
         width: 112px;
 
         &:hover {
@@ -245,6 +245,10 @@ input[type=button], input[type=submit] {
                 color: var(--primary-color);
                 background-color: var(--active-color);
         }
+}
+
+.file-button {
+        padding: 16px;
 }
 
 .entry-input {
