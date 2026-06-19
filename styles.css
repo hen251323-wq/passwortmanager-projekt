@@ -140,6 +140,7 @@ body {
 
 .error-text {
 	color: red;
+        margin: 8px;
 }
 
 .scrollable {

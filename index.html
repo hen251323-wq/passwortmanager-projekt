@@ -12,12 +12,28 @@
 			<h1> Passwortmanager </h1>
 			
 			<form id="new-set-form" class="pad-by-width">
-				<input type="text" id="new-set-name" name="new-set-name", placeholder="Name">
-				<input type="password" id="new-set-password" name="new-set-password" placeholder="Masterkennwort">
+
+				<div>
+					<input type="text" id="server-address" name="server-address", placeholder="Server Addresse">
+					<input type="text" id="server-port" name="server-port", placeholder="Server Port">
+					<br>
+					<input type="button" id="server-submit" value="Verbinden">
+					<br>
+					<p id="server-connect-status" class="error-text">Nicht verbunden</p>
+				</div>
+				
 				<br>
-				<input type="button" id="new-set-submit" value="Set erstellen">
 				<br>
-				<p id="new-set-error" class="error-text" hidden></p>
+
+				<div>
+					<input type="text" id="new-set-name" name="new-set-name", placeholder="Name">
+					<input type="password" id="new-set-password" name="new-set-password" placeholder="Masterkennwort">
+					<br>
+					<input type="button" id="new-set-submit" value="Set erstellen">
+					<input type="button" id="load-set-submit" value="Set laden" disabled>
+					<br>
+					<p id="new-set-error" class="error-text" hidden></p>
+				</div>
 
 				<p>oder</p>
 				

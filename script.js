@@ -1,8 +1,15 @@
 const NEW_SET_FORM_ELEMENT = document.getElementById('new-set-form');
+
+const SERVER_ADDRESS_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector("#server-address");
+const SERVER_PORT_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector("#server-port");
+const SERVER_CONNECT_BUTTON_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector("#server-submit");
+const SERVER_CONNECT_ERROR_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector('#server-connect-status')
+
 const NEW_SET_NAME_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector('#new-set-name');
 const NEW_SET_PASSWORD_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector('#new-set-password');
 const NEW_SET_SUBMIT_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector('#new-set-submit');
 const NEW_SET_ERROR_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector('#new-set-error');
+const LOAD_SET_SUBMIT_ELEMENT = NEW_SET_FORM_ELEMENT.querySelector('#load-set-submit');
 
 const IMPORT_SET_BUTTON_ELEMENT = document.getElementById('import-set-button');
 const EXPORT_SET_BUTTON_ELEMENT = document.getElementById('export-set-button');
@@ -22,7 +29,39 @@ const ENTRY_ELEMENT_INEDIT_TEMPLATE = document.getElementById('entry-element-ine
 
 const LOCAL_STORAGE_KEY_SET = 'LocalSet';
 
+let currentServer = null;
 let currentSet = null;
+
+class ServerInfo {
+
+    constructor(address = '', port = '') {
+        this.address = address;
+        this.port = port;
+    }
+
+    async requestConnection() {
+        const url = `http://${this.address}:${this.port}/connect`;
+
+        return await fetch(url);
+    }
+
+    async postSetJson(setJson) {
+        const url = `http://${this.address}:${this.port}/`;
+
+        return await fetch(url, {
+            method: 'POST',
+            body: setJson
+        });
+    }
+
+    async getSetJson() {
+        const url = `http://${this.address}:${this.port}/`;
+
+        return await fetch(url, {
+            method: 'GET'
+        });
+    }
+}
 
 class PasswordSet {
 
@@ -110,8 +149,10 @@ class PasswordSet {
     }
 
     saveSetToLocalStorage() {
+        const jsonString = this.saveSetToJson();
         
-        localStorage.setItem(LOCAL_STORAGE_KEY_SET, this.saveSetToJson());
+        localStorage.setItem(LOCAL_STORAGE_KEY_SET, jsonString);
+        return jsonString;
     }
 
     getPassword(username) {
@@ -122,13 +163,21 @@ class PasswordSet {
     addEntry(username, password) {
 
         this.entryMap.set(username, password);
-        this.saveSetToLocalStorage();
+
+        const jsonString = this.saveSetToLocalStorage();
+
+        if (currentServer != null)
+            currentServer.postSetJson(jsonString);
     }
 
     removeEntry(username) {
 
         this.entryMap.delete(username);
-        this.saveSetToLocalStorage();
+        
+        const jsonString = this.saveSetToLocalStorage();
+
+        if (currentServer != null)
+            currentServer.postSetJson(jsonString);
     }
 }
 
@@ -240,6 +289,34 @@ function onSetPasswortSubmitted() {
     loadEntries();
 }
 
+async function onServerConnect() {
+    const serverAddress = SERVER_ADDRESS_ELEMENT.value;
+    const serverPort = SERVER_PORT_ELEMENT.value;
+
+    if (serverAddress === '' || serverPort === '') {
+
+        printText(SERVER_CONNECT_ERROR_ELEMENT, 'Bitte geben Sie Addresse und Port an.');
+        return;
+    }
+
+    let serverInfo = new ServerInfo(serverAddress, serverPort);
+    const response = await serverInfo.requestConnection();
+    const statusCode = response.status;
+
+    if (statusCode != 200) {
+
+        printText(SERVER_CONNECT_ERROR_ELEMENT, 'Error Code ${statusCode}: Konnte nicht mit Server verbinden.');
+        return;
+    }
+
+    SERVER_CONNECT_ERROR_ELEMENT.hidden = true;
+    currentServer = serverInfo;
+
+    LOAD_SET_SUBMIT_ELEMENT.disabled = false;
+
+    LOAD_SET_SUBMIT_ELEMENT.addEventListener('click', onSetLoad);
+}
+
 function onNewSetCreated() {
     const setName = NEW_SET_NAME_ELEMENT.value;
     const setKey = NEW_SET_PASSWORD_ELEMENT.value;
@@ -255,6 +332,19 @@ function onNewSetCreated() {
     const localSet = new PasswordSet(setName, setKey);
 
     setCurrentSet(localSet);
+}
+
+async function onSetLoad() {
+    const response = await currentServer.getSetJson();
+
+    if (response.status == 204)
+        return;
+
+    const localSet = new PasswordSet();
+    const jsonString = await response.text();
+
+    if (localSet.loadSetFromJson(jsonString))
+        setCurrentSet(localSet);
 }
 
 function onSetImport(event) {
@@ -344,6 +434,7 @@ function main() {
         SET_PASSWORD_SUBMIT_ELEMENT.removeEventListener('click', onSetPasswortSubmitted);
     }
   
+    SERVER_CONNECT_BUTTON_ELEMENT.addEventListener('click', onServerConnect);
     NEW_SET_SUBMIT_ELEMENT.addEventListener('click', onNewSetCreated);
     IMPORT_SET_BUTTON_ELEMENT.addEventListener('change', onSetImport);
     EXPORT_SET_BUTTON_ELEMENT.addEventListener('click', onSetExport);
