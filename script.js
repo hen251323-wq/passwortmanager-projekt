@@ -54,8 +54,8 @@ class ServerInfo {
         });
     }
 
-    async getSetJson() {
-        const url = `http://${this.address}:${this.port}/`;
+    async getSetJson(name='') {
+        const url = `http://${this.address}:${this.port}/search?name=${name}`;
 
         return await fetch(url, {
             method: 'GET'
@@ -335,7 +335,16 @@ function onNewSetCreated() {
 }
 
 async function onSetLoad() {
-    const response = await currentServer.getSetJson();
+    const setName = NEW_SET_NAME_ELEMENT.value;
+    const setKey = NEW_SET_PASSWORD_ELEMENT.value;
+
+    if (setName === '' || setKey === '') {
+
+        printText(NEW_SET_ERROR_ELEMENT, 'Bitte geben Sie Name und Kennwort an.');
+        return;
+    }
+
+    const response = await currentServer.getSetJson(setName);
 
     if (response.status == 204)
         return;
