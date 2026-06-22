@@ -1,5 +1,6 @@
 const http = require('http');
 const mongodb = require('mongodb');
+const crypto = require('crypto');
 
 const hostname = '127.0.0.1'; // localhost
 const port = 3000;
@@ -11,31 +12,39 @@ const mongoClient = new mongodb.MongoClient(mongoUrl);
 
 let setCollection = null;
 
-async function receiveSetJson(request, response) {
+function createHash(value) {
+        const hash = crypto.createHash('sha256');
+
+        hash.update(value);
+        return hash.digest('hex');
+}
+
+async function receiveSetJson(setName, setKey, request, response) {
         let jsonString = '';
 
         request.on('data', (data) => {
                 jsonString += data;
         });
 
-        request.on('end', () => {
-                const localSet = JSON.parse(jsonString);
+        request.on('end', async () => {
                 
-                await setCollection.insertOne({
-                        name: localSet.name,
-                        json: jsonString
-                });
+                await setCollection.updateOne(
+                        { name: setName, key: createHash(setKey) },
+                        { $set: { json: jsonString }},
+                        { upsert: true }
+                );
 
-                console.log('Received set json string ' + jsonString);
+                console.log('Received set json string "' + jsonString + '" with key "' + setKey + '"');
+                response.end();
         });
 }
 
-function sendSetJson(setName, response) {
-        const setEntry = await setCollection.findOne({ name: setName });
+async function sendSetJson(setName, setKey, response) {
+        const setEntry = await setCollection.findOne({ name: setName, key: createHash(setKey) });
 
         if (setEntry == null) {
 
-                console.log('Requested set "' + setName + '" does not exist, skipping...');
+                console.log('Requested set "' + setName + '" with key "' + setKey + '" does not exist, skipping...');
 
                 response.statusCode = 204;
 
@@ -49,32 +58,50 @@ function sendSetJson(setName, response) {
 }
 
 async function initHttpServer() {
-        const server = http.createServer((request, response) => {
+
+        const server = http.createServer(async (request, response) => {
+                const url = new URL(request.url || '', `http://${request.headers.host}`);
+                response.statusCode = 200;
 
                 response.setHeader('Access-Control-Allow-Origin', '*');
 
                 if (request.method == 'POST') {
 
-                        await receiveSetJson(request, response);
-                        return;
+                        if (url.pathname === '/update') {
+                                const name = url.searchParams.get('name');
+                                const key = url.searchParams.get('key');
+
+                                try {
+                                        await receiveSetJson(name, key, request, response);
+                                } catch ({ name, message }) {
+                                        console.log(name + ': ' + message);
+                                }
+
+                                return;
+                        }
                 }
 
                 if (request.method == 'GET') {
-                        const url = new URL(request.url || '', `http://${request.headers.host}`);
-                        response.statusCode = 200;
 
                         if (url.pathname === '/connect') {
 
                                 response.setHeader('Content-Type', 'text/plain');
                                 response.end();
 
-                                console.log('Received connection.');
+                                console.log('Received connection from "' + request.url + '".');
                                 return;
                         }
 
                         if (url.pathname === '/search') {
+                                const name = url.searchParams.get('name');
+                                const key = url.searchParams.get('key');
                          
-                                sendSetJson(url.searchParams.get('name'), response);
+                                try {
+                                        await sendSetJson(name, key, response);
+                                } catch ({ name, message }) {
+                                        console.log(name + ': ' + message);
+                                }
+
                                 return
                         }
                 }
@@ -101,8 +128,8 @@ async function initMongoClient() {
 
 async function main() {
         
-        initHttpServer();
-        initMongoClient();
+        await initHttpServer();
+        await initMongoClient();
 }
 
 main();

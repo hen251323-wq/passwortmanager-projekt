@@ -42,24 +42,36 @@ class ServerInfo {
     async requestConnection() {
         const url = `http://${this.address}:${this.port}/connect`;
 
-        return await fetch(url);
+        try {
+            return await fetch(url);
+        } catch (error) {
+            return { ok: false, status: -1};
+        }
     }
 
-    async postSetJson(setJson) {
-        const url = `http://${this.address}:${this.port}/`;
+    async postSetJson(name, keyHash, setJson) {
+        const url = `http://${this.address}:${this.port}/update?name=${name}&key=${keyHash}`;
 
-        return await fetch(url, {
-            method: 'POST',
-            body: setJson
-        });
+        try {
+            return await fetch(url, {
+                method: 'POST',
+                body: setJson
+            });
+        } catch (error) {
+            return { ok: false, status: -1 };
+        }
     }
 
-    async getSetJson(name='') {
-        const url = `http://${this.address}:${this.port}/search?name=${name}`;
+    async getSetJson(name, keyHash) {
+        const url = `http://${this.address}:${this.port}/search?name=${name}&key=${keyHash}`;
 
-        return await fetch(url, {
-            method: 'GET'
-        });
+        try {
+            return await fetch(url, {
+                method: 'GET'
+            });
+        } catch (error) {
+            return { ok: false, status: -1 };
+        }
     }
 }
 
@@ -74,6 +86,7 @@ class PasswordSet {
 
         this.eKey = '';
         this.dKey = '';
+        this.keyHash = '';
         this.entryMap = new Map();
         this.data = '';
     }
@@ -92,10 +105,11 @@ class PasswordSet {
         return this.encrypt(text, key);
     }
 
-    setMasterKey(key) {
-
+    async setMasterKey(key) {
         this.eKey = key;
         this.dKey = key;
+
+        this.keyHash = await createHash(key);
     }
     
     validateKeys() {
@@ -117,6 +131,10 @@ class PasswordSet {
         }
 
         return true; 
+    }
+
+    isLocked() {
+        return this.keyHash === '';
     }
 
     loadSetFromJson(jsonString) {
@@ -160,25 +178,43 @@ class PasswordSet {
         return this.entryMap.get(username);
     }
 
-    addEntry(username, password) {
+    tryUpdateStorages() {
+
+        const jsonString = this.saveSetToLocalStorage();
+
+        if (currentServer == null)
+            return;
+
+        currentServer.postSetJson(this.name, this.keyHash, jsonString).then((response) => {
+
+            if (!response.ok)
+                printText(SERVER_CONNECT_ERROR_ELEMENT, 'Error Code ' + response.status + ': Konnte nicht lokales Set zum Server versenden.');
+        });
+    }
+
+    addEntry(username, password, shouldUpdateStorages = true) {
 
         this.entryMap.set(username, password);
 
-        const jsonString = this.saveSetToLocalStorage();
+        if (shouldUpdateStorages)
+            this.tryUpdateStorages();
 
-        if (currentServer != null)
-            currentServer.postSetJson(jsonString);
     }
 
-    removeEntry(username) {
+    removeEntry(username, shouldUpdateStorages = true) {
 
         this.entryMap.delete(username);
-        
-        const jsonString = this.saveSetToLocalStorage();
 
-        if (currentServer != null)
-            currentServer.postSetJson(jsonString);
+        if (shouldUpdateStorages)
+            this.tryUpdateStorages();
     }
+}
+
+async function createHash(value) {
+        const encodedValue = new TextEncoder().encode(value);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', encodedValue);
+
+        return new Uint8Array(hashBuffer).toHex();
 }
 
 function buildEntryElement() {
@@ -256,9 +292,11 @@ function loadEntries() {
 
     for (let [key, value] of currentSet.entryMap) {
        
-        currentSet.addEntry(key, value);
+        currentSet.addEntry(key, value, false);
         fillEntryElement(buildEntryElement(), key);
     };
+
+    currentSet.tryUpdateStorages();
 
     NEW_ENTRY_BUTTON_ELEMENT.disabled = false;
 
@@ -266,7 +304,7 @@ function loadEntries() {
 }
 
 
-function onSetPasswortSubmitted() {
+async function onSetPasswortSubmitted() {
     const enteredKey = SET_PASSWORD_ELEMENT.value;
 
     if (enteredKey === '') {
@@ -274,7 +312,7 @@ function onSetPasswortSubmitted() {
         return;
     }
 
-    currentSet.setMasterKey(enteredKey);
+    await currentSet.setMasterKey(enteredKey);
 
     const success = currentSet.validateKeys();
 
@@ -299,13 +337,20 @@ async function onServerConnect() {
         return;
     }
 
+    printText(SERVER_CONNECT_ERROR_ELEMENT, 'Verbindet mit Server...');
+
     let serverInfo = new ServerInfo(serverAddress, serverPort);
     const response = await serverInfo.requestConnection();
-    const statusCode = response.status;
 
-    if (statusCode != 200) {
+    if (!response.ok) {
 
-        printText(SERVER_CONNECT_ERROR_ELEMENT, 'Error Code ${statusCode}: Konnte nicht mit Server verbinden.');
+        if (response.status == -1) {
+
+            printText(SERVER_CONNECT_ERROR_ELEMENT, 'Verbindungsanfrage zum Server konnte nicht vollendet werden.');
+            return;
+        }
+
+        printText(SERVER_CONNECT_ERROR_ELEMENT, 'Error Code ' + response.status + ': Konnte nicht mit Server verbinden.');
         return;
     }
 
@@ -315,6 +360,10 @@ async function onServerConnect() {
     LOAD_SET_SUBMIT_ELEMENT.disabled = false;
 
     LOAD_SET_SUBMIT_ELEMENT.addEventListener('click', onSetLoad);
+
+    if (currentSet != null)
+        if (!currentSet.isLocked())
+            currentSet.tryUpdateStorages();
 }
 
 function onNewSetCreated() {
@@ -344,13 +393,26 @@ async function onSetLoad() {
         return;
     }
 
-    const response = await currentServer.getSetJson(setName);
+    printText(NEW_SET_ERROR_ELEMENT, 'Wartet auf Server...');
 
-    if (response.status == 204)
+    const hash = await createHash(setKey);
+    const response = await currentServer.getSetJson(setName, hash);
+
+    if (!response.ok) {
+
+        if (response.status == 204) {
+
+            printText(NEW_SET_ERROR_ELEMENT, 'Set mit Namen und/oder Kennwort konnte nicht auf Server gefunden werden.')
+            return;
+        }
+
+        printText(NEW_SET_ERROR_ELEMENT, 'Error Code ' + response.Status + ': Set konnte nicht vom Server geladen werden');
         return;
+    }
 
     const localSet = new PasswordSet();
     const jsonString = await response.text();
+    NEW_SET_ERROR_ELEMENT.hidden = true;
 
     if (localSet.loadSetFromJson(jsonString))
         setCurrentSet(localSet);
